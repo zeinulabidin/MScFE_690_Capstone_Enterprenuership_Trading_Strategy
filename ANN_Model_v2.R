@@ -8,7 +8,11 @@ library(fpp2)
 library(nnet)
 library(mice)
 library(neuralnet)
+<<<<<<< HEAD
 library(caret)
+=======
+
+>>>>>>> 569cc1cda621f70b9c0a8d50062ca8217fa075c3
 #Downloading the data of the indices that we are going to use for backtesting
 indices <- c('^GDAXI' # German Dax Index 
              ,'^GSPC',# S&P 500 index
@@ -43,6 +47,7 @@ dow_jones$return <- na.omit((Delt(dow_jones)))
 
 nikie$return<- na.omit((Delt(nikie)))
 
+<<<<<<< HEAD
 
 
 
@@ -56,6 +61,17 @@ dow_jones <- na.omit(as.data.frame(dow_jones))
 
 nikie<- na.omit(as.data.frame(nikie))
 
+=======
+#convert into dataframes
+
+dax<- as.data.frame(dax)
+
+sp500<- as.data.frame(sp500)
+
+dow_jones <- as.data.frame(dow_jones)
+
+nikie<- as.data.frame(nikie)
+>>>>>>> 569cc1cda621f70b9c0a8d50062ca8217fa075c3
 
 #renaming my columns
 names(dax)<-c("price","returns")
@@ -66,6 +82,7 @@ names(dow_jones)<-c("price","returns")
 
 names(nikie)<-c("price","returns")
 
+<<<<<<< HEAD
 #Generating daily Direction
 #returns >0 "Up"
 #returns <0 "Down"
@@ -78,6 +95,8 @@ dow_jones$direction<- ifelse(dow_jones$returns>0, 1, 0)
 nikie$direction<- ifelse(nikie$returns>0, 1, 0)
 
 
+=======
+>>>>>>> 569cc1cda621f70b9c0a8d50062ca8217fa075c3
 
 # calulating technical indicators 
 
@@ -169,6 +188,7 @@ nikie<-cbind(nikie, bollinger_bands_nikie)
 
 
 
+<<<<<<< HEAD
 
 
 
@@ -219,6 +239,67 @@ vali_nikie <- norm_nikie[idx_nikie == 3,]
 
 
 
+=======
+#Generating daily Direction
+#returns >0 "Up"
+#returns <0 "Down"
+dax$direction<- ifelse(dax$returns>0, "Up", "Down")
+
+sp500$direction<- ifelse(sp500$returns>0, "Up", "Down")
+
+dow_jones$direction<- ifelse(dow_jones$returns>0, "Up", "Down")
+
+nikie$direction<- ifelse(nikie$returns>0, "Up", "Down")
+
+
+
+#We divide our data into three parts
+#Training dataset -> training the neural network 
+# Validating dataset -> validating the estimated parameters  
+# Testing dataset -> measure the accuracy of the prediction 
+
+#Splitting dax
+idx_dax <- sample(seq(1, 3), size = nrow(dax), replace = TRUE, prob = c(.6, .2, .2))
+train_dax2 <- dax[idx_dax == 1,]
+test_dax2 <- dax[idx_dax == 2,]
+vali_dax2 <- dax[idx_dax == 3,]
+
+#Splitting sp500
+idx_sp500 <- sample(seq(1, 3), size = nrow(sp500), replace = TRUE, prob = c(.6, .2, .2))
+train_sp5002 <- dax[idx_sp500 == 1,]
+test_sp5002 <- dax[idx_sp500 == 2,]
+vali_sp5002 <- dax[idx_sp500 == 3,]
+
+#Splitting dowjones
+idx_dow_jones <- sample(seq(1, 3), size = nrow(dow_jones), replace = TRUE, prob = c(.6, .2, .2))
+train_dow_jones2 <- dax[idx_dow_jones == 1,]
+test_dowjones2 <- dax[idx_dow_jones == 2,]
+vali_dowjones2 <- dax[idx_dow_jones == 3,]
+
+#Splitting nikie
+idx_nikie <- sample(seq(1, 3), size = nrow(nikie), replace = TRUE, prob = c(.6, .2, .2))
+train_nikie2 <- dax[idx_nikie == 1,]
+test_nikie2 <- dax[idx_nikie == 2,]
+vali_nikie2 <- dax[idx_nikie == 3,]
+
+
+
+#Imputing data for the missing values
+
+md.pattern(train_dax2)
+md.pattern(vali_dax2)
+
+
+imputed_train_dax2 <- mice(train_dax2, m=5, maxit = 50, method = 'pmm', seed = 500)
+summary(imputed_train_dax2)
+
+imputed_vali_dax2 <- mice(vali_dax2, m=5, maxit = 50, method = 'pmm', seed = 500)
+summary(imputed_vali_dax2)
+
+#get completed data
+complete_train_dax <- complete(imputed_train_dax2,2)
+complete_vali_dax <- complete(imputed_vali_dax2,2)
+>>>>>>> 569cc1cda621f70b9c0a8d50062ca8217fa075c3
 
 #ANN model
 set.seed(1)
@@ -226,12 +307,20 @@ set.seed(1)
 #Implement ANN for DAx
 ## This part has an error
 
+<<<<<<< HEAD
 neural_network_dax<- neuralnet(direction.z~price.z +  sma50.z+sma200.z+macd.z+signal.z+rsi.z+fastK.z
                               +fastD.z +slowD.z+dn.z+mavg.z+up.z +pctB.z,
                                data=train_dax, threshold = 0.1, hidden=5, err.fct = "sse", act.fct = "logistic",
                                rep = 3, algorithm = "rprop+",
                                linear.output = TRUE) 
  neural_network_dax 
+=======
+neural_network_dax<- neuralnet(direction~price + sma50+sma200+macd+signal+rsi+fastK+fastD +slowD+dn+mavg+up+pctB,
+                               data=complete_train_dax, hidden=c(5,3), err.fct = "sse", act.fct = "tanh",
+                               rep = 1, algorithm = "rprop+",
+                               linear.output = TRUE) 
+neural_network_dax 
+>>>>>>> 569cc1cda621f70b9c0a8d50062ca8217fa075c3
 
 
 # plot neural network
@@ -239,6 +328,7 @@ plot(neural_network_dax)
 
 
 # Prediction
+<<<<<<< HEAD
 output <- compute(neural_network_dax,train_dax[,-3])
 head(output$net.result)
 p1 <- output$net.result
@@ -246,5 +336,24 @@ pred1 <- ifelse(p1>0.5, 1, 0)
 tab1 <- table(pred1, train_dax$direction)
 tab1
 1-sum(diag(tab1))/sum(tab1)
+=======
+output <- compute(neural_network_dax, complete_train_dax[,-15])
+head(output$net.result)
+p1 <- output$net.result
+pred1 <- ifelse(p1>0.5, "Up", "Down")
+tab1 <- table(pred1, complete_train_dax$direction)
+tab1
+
+#Making prediction using validation data
+vali_pred<- predict(neural_network_dax,complete_vali_dax) 
+head(vali_pred) 
+
+vali_pred_class<-data.frame(matrix(NA,dim(vali_pred)[1],1))
+
+vali_pred_class[vali_pred[,"Down"] > 0.5,1] <- "Down" 
+
+vali_pred_class[vali_pred[,"Up"] > 0.5,1] <- "Up" 
+
+>>>>>>> 569cc1cda621f70b9c0a8d50062ca8217fa075c3
 
 
