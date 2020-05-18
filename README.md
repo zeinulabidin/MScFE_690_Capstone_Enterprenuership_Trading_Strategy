@@ -13,3 +13,5 @@ Steps used are:
 7. We validate our model with validating data and optimise our model.
 8. Finally we test our our model and make the forecast.
 
+# BreakOut System
+Trading system based on the break out of the previous day’s high/low value
